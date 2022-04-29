@@ -1,0 +1,131 @@
+package Chango;
+
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
+
+public class EmartReceipt {
+	
+	public static void truncate() {
+		
+	}
+
+   public static void main(String[] args) {
+         String [] k10_items = {"노브랜드 감자칩 오리지날 110g", "크라운 국희땅콩샌드 372g(12입)","[오리온] 포카칩 오리지널 66g", "(G)[피코크] 초콜릿 샌드위치 비스킷 135g", "(G)[피코크] 초코칩쿠키 브라우니 150g", 
+                 "오리온 only생감자팩 180g", "크라운 참쌀선과 253g", "오리온 초코송이 36g*2번들", "[롯데] 꼬깔콘 군옥수수맛 67g", "[해태] 홈런볼초코 5번들 230g", "노브랜드 자색고구마칩 110g", 
+                 "노브랜드 감자칩 사워크림&어니언 110g", "롯데 카스타드 2번들 460G(20입)", "해태 허니버터칩4번들 152g", "[오리온] 포카칩 어니언 맛 66g", "[오리온] 왕고래밥 56g", "[농심] 포스틱 84g",
+                 "[농심] 매운새우깡 90g", "몽쉘 카카오케이크 384g", "[크라운] 참크래커 280g", "농심 양파링 84g", "노브랜드 초코파이 420g", "[농심] 꿀꽈배기 90g","오리온 예감 오리지널 192g", 
+                 "해태 홈런볼커스타드크림4번들164g", "해태 오예스미니192g","농심 오징어칩 83g", "크라운 참쌀설병 270g", "오레오 화이트크림 쿠키100g", "[롯데] 빈츠 204g", "오사쯔 고구마 129g", "노브랜드 초코칩 쿠키 400g"};
+           
+           int [] k10_prices = {890,3840,1180,2980,1480,3980,3880,1120,1180,5980,980,980,6980,2980,1180,980,1280,1100,4780,3360,1280,1880,1280,2880,3980,2880,1280,3880,1280,4480,2680,3680}; //가격 배열
+           int [] k10_amounts = {1,2,1,1,1,1,10,1,1,1,1,2,1,1,1,1,2,1,1,2,3,1,2,1,1,1,1,1,2,1,1,3};		//수량배열
+           boolean [] k10_taxFree = {false,false,false,false,false,false,true,false,false,false,false,true,false,false,false,false,false,false,false,true,false,false,false,false,false,false,true,false,false,true,false,true};
+           																				//면세품목 여부
+           Calendar k10_cal = Calendar.getInstance();      //거래일시 출력용 캘린더
+           SimpleDateFormat k10_dateForm = new SimpleDateFormat("YYYY-MM-dd HH:mm"); //거래 일시, 입차시간 출력 용 SimpleDateFormat 생성
+           SimpleDateFormat k10_bottomPrint = new SimpleDateFormat("YYYYMMdd"); //바코드 하단 날짜코드를 위한 SimpleDateFormat
+           Calendar k10_carCal = Calendar.getInstance(); 	//입차시간 기록을 위한 캘린더 생성
+           k10_carCal.add(Calendar.MINUTE, -50);           	// 입차시간 용 캘린더에 현시간 - 50분으로 설정(50분 전 입차)
+           DecimalFormat k10_decForm = new DecimalFormat("###,###,###,###");	//숫자에 1000단위로 콤마 찍기 위한 DecimalFormat 생성
+           	
+           double k10_taxRate = 0.1;	//세율 10 퍼센트
+           int k10_sumTaxFree = 0;		//면세물품 합산액을 담을 변수
+           int k10_sumNormal = 0;		//과세 물품의 총합을 담을 변수
+           int k10_netNormal = 0;		//과세 물품의 세전가 합을 담을 변수
+           int k10_taxNormal = 0;		//과세물품 세금 합을 담을 변수
+           int k10_totalSum = 0;		//합계 / 결제 대상 금액을 담을 변수
+    
+           //////출력
+           System.out.printf("              이마트 죽전점 (031)888-1234\n"); 
+           System.out.printf("   emart      206-86-50913 강희석\n");	
+           System.out.printf("              용인 수지구 포은대로 552\n");
+           System.out.printf("\n");
+           System.out.printf("영수증 미지참시 교환/환불 불가\n");
+           System.out.printf("정상상품에 한함, 30일 이내(신선 7일)\n");
+           System.out.printf("※일부 브랜드매장 제외(매장 고지물참조)\n");
+           System.out.printf("교환/환불 구매점에서 가능(결제카드 지참)\n");
+           System.out.printf("\n");
+           System.out.printf("[구 매]%s     POS:0011-9861\n",k10_dateForm.format(k10_cal.getTime())); 	//거래시간(실행한 현재시간)을 알려주는 k10_dateForm으로 현재 시간을 출력한다.
+           System.out.printf("-----------------------------------------\n");
+           System.out.printf("  상 품 명           단  가 수량   금  액\n");
+           System.out.printf("-----------------------------------------\n");
+           
+           for (int k10_index = 0; k10_index < k10_items.length; k10_index++) {
+              
+              if (k10_taxFree[k10_index] == true) {	//품목을 돌면서 먼저 면세 물품인 항목들을 찾아낸다.
+                 System.out.printf("* ");	//면세물품에 해당할 경우 상품명 가장 좌측에 별표가 붙는다. 그 후 일치하는 인덱스의 품목명, 단가, 품목 합계를 출력한다. k10_decForm으로 콤마를 찍어준다.
+                 System.out.printf("%s%10s %2s %10s\n", k10_truncate(k10_items[k10_index], 15), k10_decForm.format(k10_prices[k10_index]), k10_amounts[k10_index], 
+                		 												k10_decForm.format(k10_prices[k10_index] * k10_amounts[k10_index]));
+              } else {	//나머지는 모두 과세 물품. 같은 방법으로 나머지 경우와 일치하는 인덱스의 품목, 단가, 합계를 출력한다.
+                 System.out.printf("  ");	//일반 물품의 경우 별이 찍히지 않았으므로 앞에 3 칸의 공백을 준다.
+                 System.out.printf("%s%10s %2s %10s\n", k10_truncate(k10_items[k10_index], 15), k10_decForm.format(k10_prices[k10_index]), k10_amounts[k10_index], k10_decForm.format(k10_prices[k10_index] * k10_amounts[k10_index]));
+              }
+              
+              if ((k10_index + 1) % 5 == 0) {	// 품목을 차례대로 찍으며 "인덱스 + 1"이 5의 배수일 때(매 다섯번째 품목 마다) 점선을 찍어준다.
+                 System.out.printf("-----------------------------------------\n");
+              }
+           }
+           for (int k10_index = 0; k10_index < k10_prices.length; k10_index++) {       //총 합계는 리스트 상의 금액과 갯수를 곱해서 구해낸다.
+        	   k10_totalSum = k10_totalSum + (k10_prices[k10_index] * k10_amounts[k10_index]);
+        	   
+        	   if (k10_taxFree[k10_index] == true) {			//면세 물품에 해당하는 (k10_taxFree[xx] == true)와 일치하는 인덱스의 금액들을 따로 모아 별도의 합계를 구한다.
+        		   k10_sumTaxFree = k10_sumTaxFree + (k10_prices[k10_index] * k10_amounts[k10_index]);
+        	   } 
+        	   else {k10_sumNormal = k10_sumNormal + (k10_prices[k10_index] * k10_amounts[k10_index]); //일반 과세물품들의 총합을 구한다.
+        	   		k10_netNormal = (int)((k10_sumNormal / (1 + k10_taxRate)));	//과세물품 총합 / (1+세율)로 세전가 총합을 구한다.
+        	   		k10_taxNormal = k10_sumNormal - k10_netNormal; //과세물품 총합 - 세전가 총합으로 세금을 구한다. 
+        	   }
+           }
+           
+           System.out.printf("\n");
+           System.out.printf("               총 품목 수량%14d\n", k10_items.length);
+           System.out.printf("            (*)면 세  물 품%14s\n", k10_decForm.format(k10_sumTaxFree)); 	//콤마가 찍힌 면세물품 합계를 출력한다.
+           System.out.printf("               과 세  물 품%14s\n", k10_decForm.format(k10_netNormal));	//콤마가 찍힌 일반 물품 세전 합계를 출력한다.
+           System.out.printf("               부   가   세%14s\n", k10_decForm.format(k10_taxNormal));	//콤마가 찍힌 일반 물품 세금 합계를 출력한다.
+           System.out.printf("               합        계%14s\n", k10_decForm.format(k10_totalSum));	//총 합계 금액을 출력한다.
+           System.out.printf("결 제 대 상 금 액          %14s\n", k10_decForm.format(k10_totalSum));	//결제대상금액(총 합계 금액)을 출력한다.
+           System.out.printf("-----------------------------------------\n");           
+           System.out.printf("0012 KEB 하나       %12s/%8s\n", "541707**0484", "35860658");
+           System.out.printf("카드결제(IC)%26s\n", "일시불 / " +  k10_decForm.format(k10_totalSum)); //결제 대상인 총 합계를 출력한다.
+           System.out.printf("-----------------------------------------\n");
+           System.out.printf("           [신세계포인트 적립]\n");
+           System.out.printf("홍*두 고객님의 포인트 현황입니다.\n");
+           System.out.printf("금회발생포인트      9350**995  %10s\n", k10_decForm.format(164)); 	//금회 발생 포인트를 출력한다. 1000이 넘는다면 #,###형식으로 출력된다.
+           System.out.printf("누계(가용)포인트   %10s(%10s)\n", k10_decForm.format(5637), k10_decForm.format(5473)); 	//콤마가 찍힌 포인트 누계를 출력한다.
+           System.out.printf("*신세계포인트 유효기간은 2년입니다.\n");
+           System.out.printf("-----------------------------------------\n");
+           System.out.printf("   구매금액기준 무료주차시간 자동부여\n");
+           System.out.printf("차랑번호 :                       %7s\n", "34저****");
+           System.out.printf("입차시간 :               %16s\n",k10_dateForm.format(k10_carCal.getTime())); 	//입차시간 기록을 위해 생성한 캘린더로 입차시간(50분 전)을 출력한다.
+           System.out.printf("-----------------------------------------\n");
+           System.out.printf("캐셔:084599 양OO                     %4d\n", 1150);
+           System.out.printf("   |||||||||||||||||||||||||||||||||||\n");
+           System.out.printf("   |||||||||||||||||||||||||||||||||||\n");
+           System.out.printf("      %8s/%8s/%8s/%2s", k10_bottomPrint.format(k10_cal.getTime()),"00119861", "00164980", "31"); // 날짜코드와 여러가지 코드들을 출력한다.
+           
+        }
+   
+   		public static String k10_truncate(String k10_item, int k10_bSize) { //품명을 바이트 단위로 자르기 위한 함수 k10_truncate. k10_item = k10_items[], k10_bsize = 15
+			
+   			if (k10_item.getBytes().length > k10_bSize) { 	//상품명의 바이트 단위의 길이가 설정된 바이트 크기 보다 클 경우에 대한 작업을 내린다. 설정된 범위 안이라면 바로 아래의 blank 부분으로 넘어간다.
+				StringBuffer k10_sbf = new StringBuffer(k10_bSize); 		//문자열 버퍼 sbf를 선언. k10_bSize 만큼의 문자를 담을 수 있다.
+				int k10_lengthMeasure = 0;				//정수형 변수 lengthMeasure. 문자열 길이를 카운트하는 데 쓰인다.
+				
+				for (char k10_c : k10_item.toCharArray()) { //문자 변수 k10_c를 선언하고 메인에서 받은 품목명 k10_item을 문자 배열로 쪼갠 후 순차적으로 k10_c에 대입해 for each문을 실행한다.
+					k10_lengthMeasure = k10_lengthMeasure + String.valueOf(k10_c).getBytes().length; //k10_c의 문자를 다시 String화 해 byte단위 길이로 하나씩 돌려주고 이에 대한 바이트 수를 lengthMeasure로 저장한다.
+					if(k10_lengthMeasure > k10_bSize) {	//이때 String의 길이인 lengthMeasure가 메인에서 설정된 바이트 길이(15) 보다 길어질 경우 break 한다. (설정된 길이 이상의 String을 만들지 않음)
+						break;
+					} //end of inner if
+					k10_sbf.append(k10_c); // 위 과정에서 나오는 k10_c의 문자들을 위의 stringBuffer에 하나씩 뒤로 이어 붙인다.( ex) 노 <- 브 <- 랜 <- 드 ...식으로)
+				} //end of for
+				k10_item = k10_sbf.toString();	//StringBuffer에 저장된 문자들을 String화 해 k10_item으로 돌려준다. 
+			} //end of outer if
+			String k10_spacing = ""; 	//출력 후 남은 부분을 채워줄 공백 String을 선언한다.
+			int k10_iSize = k10_item.getBytes().length; //위의 과정을 통해 도출된 품목명의 바이트 크기를 대입할 정수형 변수를 선언한다.
+			
+			for (int k10_j = 0; k10_j < k10_bSize - k10_iSize; k10_j++) {	//0부터 "지정된 바이트값 - 길이를 자른 품목명 길이"까지 범위를 설정해준다. 
+				k10_spacing = k10_spacing + " "; 	//즉, 길이를 자른 품목명과 설정된 품목명 길이 사이의 남는 부분 만큼을 space로 채운다.
+			}
+   			return k10_item + k10_spacing;	//길이를 자른 품목명 + 남은 공간을 채워줄 스페이스를 반환한다.
+   		}
+     }
